@@ -1,7 +1,7 @@
 from tkinter import *
 import mysql.connector
 from tkinter import messagebox as mb
-import time
+from datetime import*
 
 mydb = mysql.connector.connect(user="lifechoices",password="@Lifechoices1234",host="localhost",database="lifechoicesonline")
 mycursor = mydb.cursor()
@@ -29,7 +29,7 @@ def login_student():
     l3 = Label(root,text="Password")
     l3.place(x=0,y=50)
 
-    password_student = Entry(root)
+    password_student = Entry(root,show="*")
     password_student.place(x=100,y=50)
 
     # function to login students who are already registered in the system
@@ -43,15 +43,12 @@ def login_student():
         if username == "" or password == "":
             mb.showinfo("Attention","Please Enter Valid Literals In Required Fields")
         else:
-            log_in_time = time.strftime('%Y-%m-%d %H:%M:%S')
-            sql2 = "UPDATE INTO WHERE username = %s and Login_time = %s"
-            mycursor.execute(sql2,([username,log_in_time]))
-            mydb.commit()
-
             sql = "Select * from Users where username = %s and password = %s"
-            mycursor.execute(sql,([username,password]))
+            mycursor.execute(sql,([(username),(password)]))
             results = mycursor.fetchall()
             if results:
+                date1 = datetime.now()
+                date2 = datetime.now()
                 for i in results:
                     mb.showinfo("Login Status","Login Successful Enjoy Your Day")
                     root3 = Tk()
@@ -59,11 +56,12 @@ def login_student():
                     root3.configure(bg="black")
 
                     def logout():
-                        log_out_time = time.strftime('%Y-%m-%d %H:%M:%S')
-                        sql1 = "UPDATE INTO username = %s and Logout_time = %s"
-                        mycursor.execute(sql1,([username,log_out_time]))
+                        log_in_time = date1.strftime('%Y-%m-%d %H:%M:%S')
+                        log_out_time = date2.strftime('%Y-%m-%d %H:%M:%S')
+                        sql1 = "INSERT INTO login (username,login_time,logout_time) VALUES(%s,%s,%s)"
+                        mycursor.execute(sql1,([(username), (log_in_time) ,(log_out_time)]))
                         mydb.commit()
-
+                        print(log_out_time)
                     logout_button = Button(root3,text="Log Out",command=logout)
                     logout_button.pack()
                     break
@@ -105,7 +103,7 @@ def register_new():
     password_label = Label(root1,text="Password")
     password_label.place(x=0,y=200)
 
-    password_entry = Entry(root1)
+    password_entry = Entry(root1,show="*")
     password_entry.place(x=100,y=200)
 
     # Function to add students or workers into the database
@@ -162,7 +160,7 @@ def admin():
     l3 = Label(root2,text="Password")
     l3.place(x=0,y=50)
 
-    password_admin = Entry(root2)
+    password_admin = Entry(root2,show="*")
     password_admin.place(x=100,y=50)
 
     # function to login as admin user
@@ -218,7 +216,29 @@ def admin():
                 delete_data_button = Button(admin_section,text="Delete Users",command=delete_user)
                 delete_data_button.place(x=350,y=50)
 
-                time_management_button = Button(admin_section,text="Time Management")
+                def tmanage():
+                    root3 = Tk()
+                    root3.title("Time Management")
+                    root3.geometry("450x400")
+                    root3.configure(bg="brown")
+
+                    def display():
+                        sql = "SELECT * from login"
+                        mycursor.execute(sql)
+                        results1 = mycursor.fetchall()
+                        mydb.commit()
+
+                        for i in results1:
+                            text.insert(END, i)
+
+                    text = Listbox(root3,height=10,width=50)
+                    text.place(x=10,y=20)
+
+                    display_button = Button(root3,text="Show Database", command=display)
+                    display_button.place(x=50,y=250)
+
+
+                time_management_button = Button(admin_section,text="Time Management", command=tmanage)
                 time_management_button.place(x=350,y=100)
 
                 def quit():
