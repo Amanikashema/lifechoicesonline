@@ -1,7 +1,8 @@
+# Developed and Designed By Amani Kashema
+# Admin Details: Username = lifechoices , Password = @lifechoices1234
 from tkinter import *
 import mysql.connector
 from tkinter import messagebox as mb
-from datetime import*
 
 mydb = mysql.connector.connect(user="lifechoices",password="@Lifechoices1234",host="localhost",database="lifechoicesonline")
 mycursor = mydb.cursor()
@@ -15,95 +16,97 @@ root.configure(bg="brown")
 
 # Login as a student or worker in the system
 def login_student():
-    root = Tk()
-    root.title("Login")
-    root.geometry("300x300")
-    root.configure(bg="brown")
+    root1 = Tk()
+    root1.title("Login")
+    root1.geometry("300x300")
+    root1.configure(bg="brown")
 
-    l1 = Label(root,text="Username")
+    l1 = Label(root1,text="Username")
     l1.place(x=0,y=0)
 
-    username_entry = Entry(root)
+    username_entry = Entry(root1)
     username_entry.place(x=100,y=0)
 
-    l3 = Label(root,text="Password")
+    l3 = Label(root1,text="Password")
     l3.place(x=0,y=50)
 
-    password_student = Entry(root,show="*")
+    password_student = Entry(root1,show="*")
     password_student.place(x=100,y=50)
 
     # function to login students who are already registered in the system
     def login():
-        username = username_entry.get()
-        password = password_student.get()
-
-        username_entry.delete(0,END)
-        password_student.delete(0,END)
-
-        if username == "" or password == "":
-            mb.showinfo("Attention","Please Enter Valid Literals In Required Fields")
-        else:
+        try:
+            username = username_entry.get()
+            password = password_student.get()
+            username_entry.delete(0,END)
+            password_student.delete(0,END)
+            if username == "" or password == "":
+                mb.showinfo("Attention","Please Enter Valid Literals In Required Fields")
             sql = "Select * from Users where username = %s and password = %s"
             mycursor.execute(sql,([(username),(password)]))
             results = mycursor.fetchall()
             if results:
-                date1 = datetime.now()
-                date2 = datetime.now()
                 for i in results:
+                    # sql command to update login time
+                    sql2 = "UPDATE Users SET login_time = CURRENT_TIMESTAMP WHERE username = %s "
+                    mycursor.execute(sql2,([(username)]))
+                    mydb.commit()
                     mb.showinfo("Login Status","Login Successful Enjoy Your Day")
+                    root1.destroy()
                     root3 = Tk()
                     root3.title("Login Status")
                     root3.configure(bg="black")
 
+                    # Function to set the logout time
                     def logout():
-                        log_in_time = date1.strftime('%Y-%m-%d %H:%M:%S')
-                        log_out_time = date2.strftime('%Y-%m-%d %H:%M:%S')
-                        sql1 = "INSERT INTO login (username,login_time,logout_time) VALUES(%s,%s,%s)"
-                        mycursor.execute(sql1,([(username), (log_in_time) ,(log_out_time)]))
+                        # sql command to update logout time
+                        sql2 = "UPDATE Users SET logout_time = CURRENT_TIMESTAMP WHERE username = %s "
+                        mycursor.execute(sql2,([(username)]))
                         mydb.commit()
-                        print(log_out_time)
+                        mb.showinfo("Logout Status","Logout Successfully Enjoy your Day")
+                        root3.destroy()
+
                     logout_button = Button(root3,text="Log Out",command=logout)
                     logout_button.pack()
-                    break
-            else:
-                mb.showinfo("login Status", "Please enter a Valid username or password")
+        finally:
+            pass
 
-    login_but = Button(root, text="Login",command=login)
+    login_but = Button(root1, text="Login",command=login)
     login_but.place(x=50,y=200)
 
     # Function to go back
     def back():
-        root.destroy()
+        root1.destroy()
         root.mainloop()
 
-    back_but = Button(root, text="<-Back", command=back)
+    back_but = Button(root1, text="<-Back", command=back)
     back_but.place(x=150,y=200)
 
 
 # Function to Register new students or People entering the building
 def register_new():
-    root1 = Tk()
-    root1.title("Register")
-    root1.geometry("300x300")
-    root1.configure(bg="brown")
+    root2 = Tk()
+    root2.title("Register")
+    root2.geometry("300x300")
+    root2.configure(bg="brown")
 
     # New user information to be captured
-    firstname_label = Label(root1,text="First Name")
+    firstname_label = Label(root2,text="First Name")
     firstname_label.place(x=0,y=0)
 
-    first_name_entry = Entry(root1)
+    first_name_entry = Entry(root2)
     first_name_entry.place(x=100,y=0)
 
-    user_name_label = Label(root1,text="User-Name")
+    user_name_label = Label(root2,text="User-Name")
     user_name_label.place(x=0,y=100)
 
-    user_name_entry = Entry(root1)
+    user_name_entry = Entry(root2)
     user_name_entry.place(x=100,y=100)
 
-    password_label = Label(root1,text="Password")
+    password_label = Label(root2,text="Password")
     password_label.place(x=0,y=200)
 
-    password_entry = Entry(root1,show="*")
+    password_entry = Entry(root2,show="*")
     password_entry.place(x=100,y=200)
 
     # Function to add students or workers into the database
@@ -116,6 +119,7 @@ def register_new():
         user_name_entry.delete(0,END)
         password_entry.delete(0,END)
 
+        # statement to catch if user enters nothing in entry box
         if firstname == "" or username == "" or password == "":
             mb.showinfo("Attention","Please Enter Valid Literals In Required Fields")
         else:
@@ -123,17 +127,17 @@ def register_new():
             mycursor.execute(sql,([firstname,username,password]))
             mydb.commit()
             mb.showinfo("Registration Status","Successfully Added User")
-            root1.destroy()
+            root2.destroy()
 
-    register_button1 = Button(root1,text="Apply",command=register)
+    register_button1 = Button(root2,text="Apply",command=register)
     register_button1.place(x=50,y=250)
 
     # Function to go back
     def back():
-        root1.destroy()
+        root2.destroy()
         root.mainloop()
 
-    back_but = Button(root1, text="<-Back", command=back)
+    back_but = Button(root2, text="<-Back", command=back)
     back_but.place(x=150,y=250)
 
 
@@ -171,6 +175,7 @@ def admin():
         username_admin.delete(0,END)
         password_admin.delete(0,END)
 
+        # statement to catch if user enters nothing in entry box
         if username == "" or password == "":
             mb.showinfo("Attention","Please Enter Valid Literals In Required Fields")
         else:
@@ -193,6 +198,7 @@ def admin():
                 id_number_entry = Entry(admin_section)
                 id_number_entry.place(x=120,y=0)
 
+                # Function to Register new user
                 def add_user():
                     register_new()
 
@@ -206,7 +212,7 @@ def admin():
                     if id_num == "":
                         mb.showinfo("Attention","Please Enter Valid Literals In Required Fields")
                     else:
-
+                        # sql code to delete users from database
                         del_sql = "DELETE FROM Users WHERE id = %s"
                         user_id = (int(id_num),)
                         mycursor.execute(del_sql, user_id)
@@ -216,6 +222,7 @@ def admin():
                 delete_data_button = Button(admin_section,text="Delete Users",command=delete_user)
                 delete_data_button.place(x=350,y=50)
 
+                # Function to display logged in and logged out database
                 def tmanage():
                     root3 = Tk()
                     root3.title("Time Management")
@@ -223,7 +230,7 @@ def admin():
                     root3.configure(bg="brown")
 
                     def display():
-                        sql = "SELECT * from login"
+                        sql = "SELECT * from Users"
                         mycursor.execute(sql)
                         results1 = mycursor.fetchall()
                         mydb.commit()
@@ -241,6 +248,7 @@ def admin():
                 time_management_button = Button(admin_section,text="Time Management", command=tmanage)
                 time_management_button.place(x=350,y=100)
 
+                # Function to quit and to go back to the main screen
                 def quit():
                     admin_section.destroy()
                     root.mainloop()
@@ -258,6 +266,7 @@ def admin():
                     for i in results1:
                         text.insert(END, i)
 
+                # text box to display stored results from database
                 text = Listbox(admin_section,height=10,width=40)
                 text.place(x=10,y=50)
 
@@ -294,6 +303,5 @@ def close():
 
 exit_button = Button(root,text="Exit",command=close)
 exit_button.place(x=374,y=150)
-
 
 root.mainloop()
